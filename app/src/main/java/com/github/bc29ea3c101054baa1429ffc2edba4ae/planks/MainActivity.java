@@ -28,21 +28,18 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 Long timeDiff = (System.currentTimeMillis() - startTime);
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // 60 min 60 sec 100 ms
+                runOnUiThread(() -> {
+                    // 60 min 60 sec 100 ms
 
-                        if (cmdReset == false) {
-                            Long millis = (timeDiff / 10) % 100;
-                            Long sec = (timeDiff / 1000) % 60;
-                            Long min = (timeDiff / 1000) / 60;
+                    if (!cmdReset) {
+                        Long millis = (timeDiff / 10) % 100;
+                        Long sec = (timeDiff / 1000) % 60;
+                        Long min = (timeDiff / 1000) / 60;
 
-                            String text = formatText(min) + ":" + formatText(sec) + "." + formatText(millis);
-                            textView.setText(text);
-                        } else {
-                            textView.setText(R.string.counterDefault);
-                        }
+                        String text = formatText(min) + ":" + formatText(sec) + "." + formatText(millis);
+                        textView.setText(text);
+                    } else {
+                        textView.setText(R.string.counterDefault);
                     }
                 });
             }
@@ -65,22 +62,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // INIT
-        TextView textView = (TextView) findViewById(R.id.textView);
-        Button btnTimer = (Button) findViewById(R.id.btnTimer);
-        Button btnReset = (Button) findViewById(R.id.btnReset);
-        Button btnStats = (Button) findViewById(R.id.btnStats);
+        TextView textView = findViewById(R.id.textView);
+        Button btnTimer = findViewById(R.id.btnTimer);
+        Button btnReset = findViewById(R.id.btnReset);
+        Button btnStats = findViewById(R.id.btnStats);
 
         // DEFAULTS
         btnTimer.setTag(1);
 
         // DB
-        Thread threadBuild = new Thread(){
-            public void run(){
-                AppDatabase db = Room.databaseBuilder(getApplicationContext(),
-                        AppDatabase.class, "Record").build();
-                recordDao = db.recordDao();
-            }
-        };
+        Thread threadBuild = new Thread(() -> {
+            AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                    AppDatabase.class, "Record").build();
+            recordDao = db.recordDao();
+        });
         threadBuild.start();
 
 
@@ -136,14 +131,12 @@ public class MainActivity extends AppCompatActivity {
                 Long fDate = startTime;
 
 
-                Thread threadInsert = new Thread(){
-                    public void run(){
-                        Record record = new Record();
-                        record.setDate(fDate);
-                        record.setScore(score);
-                        recordDao.insert(record);
-                    }
-                };
+                Thread threadInsert = new Thread(() -> {
+                    Record record = new Record();
+                    record.setDate(fDate);
+                    record.setScore(score);
+                    recordDao.insert(record);
+                });
                 threadInsert.start();
 
 
